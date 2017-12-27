@@ -21,15 +21,14 @@ class CardModel {
             //log the number
             print(randomNumber)
             
-            //create first card object
+            //create card objects and add them to our cards array
             let cardOne = Card()
             cardOne.imageName = "card\(randomNumber)"
             
             generatedCardsArray.append(cardOne)
             
-            //create second card object
             let cardTwo = Card()
-            cardTwo.imageName = "card\(cardTwo)"
+            cardTwo.imageName = "card\(randomNumber)"
             
             generatedCardsArray.append(cardTwo)
             
