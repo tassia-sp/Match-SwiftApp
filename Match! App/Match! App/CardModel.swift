@@ -10,33 +10,39 @@ import Foundation
 
 class CardModel {
     
-    func getCards() -> [Card]{
-        //Declare an array to store the generated cards
+    func getCards() -> [Card] {
+        
+        // Declare an array to store the generated cards
         var generatedCardsArray = [Card]()
         
-        //Randomly generate pairs of cards
+        // Randomly generate pairs of cards
         for _ in 1...8 {
-            let randomNumber = arc4random_uniform(13)+1
             
-            //log the number
+            // Get a random number
+            let randomNumber = arc4random_uniform(13) + 1
+            
+            // Log the number
             print(randomNumber)
             
-            //create card objects and add them to our cards array
+            // Create the first card object
             let cardOne = Card()
             cardOne.imageName = "card\(randomNumber)"
             
             generatedCardsArray.append(cardOne)
             
+            // Create the second card object
             let cardTwo = Card()
             cardTwo.imageName = "card\(randomNumber)"
             
             generatedCardsArray.append(cardTwo)
             
-            // TODO: Make it so we only have unique sets of cards
+            // OPTIONAL: Make it so we only have unique pairs of cards
         }
-        //TODO: Randomize the array
         
-        //Return the array
+        // TODO: Randomize the array
+        
+        // Return the array
         return generatedCardsArray
     }
+    
 }
