@@ -20,7 +20,7 @@ class CardCollectionViewCell: UICollectionViewCell {
         self.card = card
         
         if card.isMatched == true {
-            //make the iamge views invisible
+            //make the image views invisible
             backImageView.alpha = 0
             frontImageView.alpha = 0
             return
@@ -62,13 +62,12 @@ class CardCollectionViewCell: UICollectionViewCell {
     
     func remove() {
         
-        //Set opacity to 0 to make the card "invisible"
-        backImageView.alpha = 0
-        frontImageView.alpha = 0
-        
-        // animate it
-        UIView.animate(withDuration: 0.3, delay: 0.4, options: .curveEaseOut,
-                       animations: {self.frontImageView.alpha = 0}, completion: nil)
+        //Set opacity to 0 to make the card "invisible". animate it
+        UIView.animate(withDuration: 0.5, delay: 0.4, options: .curveEaseOut,
+                       animations: {
+                        self.frontImageView.alpha = 0
+                        self.backImageView.alpha = 0
+        }, completion: nil)
         
     }
     

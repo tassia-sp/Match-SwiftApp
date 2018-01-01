@@ -19,7 +19,7 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
     var cardArray = [Card]()
     var firstFlippedCardIndex:IndexPath?
     var timer:Timer?
-    var countdown = 10
+    var countdown = 60
     
     var cardFlipSoundPlayer:AVAudioPlayer?
     var correctSoundPlayer: AVAudioPlayer?
@@ -62,20 +62,11 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
             
         }
         
-        //play the shuffle sound
-        shuffleSoundPlayer?.play()
-        
-        //call the getCards methods of the Card model
-        cardArray = model.getCards()
+        restart()
         
         collectionView.delegate = self
         collectionView.dataSource = self
-        
-        //set the countdown label
-        countdownLabel.text = String(countdown)
-        
-        //create and schedule timer
-        timer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(timerUpdate), userInfo: nil, repeats: true)
+
     }
     
     @objc func timerUpdate() {
@@ -191,11 +182,11 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
             
             cardOne.isMatched = true
             cardTwo.isMatched = true
-        
-            //remove the cards from the grid
-            correctSoundPlayer?.play()
-            cardOneCell?.remove()
-            cardTwoCell?.remove()
+            //Delay flip so user notices it
+                //remove the cards from the grid
+                self.correctSoundPlayer?.play()
+                cardOneCell?.remove()
+                cardTwoCell?.remove()
             
         } else {
             //It's not a match. Set the status of the cards
@@ -204,9 +195,9 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
             cardTwo.isFlipped = false
             
             //Flip both cards
-            wrongSoundPlayer?.play()
             cardOneCell?.flipBack()
             cardTwoCell?.flipBack()
+            wrongSoundPlayer?.play()
             
         }
         
@@ -218,6 +209,25 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
         //Reset the property that tracks the first card flipped
         firstFlippedCardIndex = nil
         
+    }
+    
+    func restart() {
+        
+        //clear out all cards
+        for card in cardArray {
+            //card.removeFromSuperView()
+        }
+        //play the shuffle sound
+        shuffleSoundPlayer?.play()
+        
+        //call the getCards methods of the Card model
+        cardArray = model.getCards()
+        
+        //set the countdown label
+        countdownLabel.text = String(countdown)
+        
+        //create and schedule timer
+        timer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(timerUpdate), userInfo: nil, repeats: true)
     }
     
 }

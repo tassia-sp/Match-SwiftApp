@@ -8,7 +8,7 @@
 
 import Foundation
 
-class CardModel {
+class CardModel: NSObject {
     
     func getCards() -> [Card] {
         
@@ -38,7 +38,17 @@ class CardModel {
             
         }
         
-        // TODO: Randomize the array
+        // Randomize the array
+        for index in 0...generatedCardsArray.count - 1 {
+            //
+            let randomNumber = Int(arc4random_uniform(UInt32(generatedCardsArray.count)))
+            
+            let randomCard = generatedCardsArray[randomNumber]
+            
+            generatedCardsArray[randomNumber] = generatedCardsArray[index]
+            generatedCardsArray[index] = randomCard
+            
+        }
         
         // Return the array
         return generatedCardsArray
