@@ -36,7 +36,6 @@ class CardModel {
             
             generatedCardsArray.append(cardTwo)
             
-            // OPTIONAL: Make it so we only have unique pairs of cards
         }
         
         // TODO: Randomize the array

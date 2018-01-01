@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import AVFoundation
 
 class ViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource {
 
@@ -20,8 +21,49 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
     var timer:Timer?
     var countdown = 10
     
+    var cardFlipSoundPlayer:AVAudioPlayer?
+    var correctSoundPlayer: AVAudioPlayer?
+    var wrongSoundPlayer:AVAudioPlayer?
+    var shuffleSoundPlayer:AVAudioPlayer?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        //create and initialize sounds players
+        do {
+            let shuffleSoundPath = Bundle.main.path(forResource: "shuffle", ofType: "wav")
+            let shuffleSoundUrl = URL(fileURLWithPath: shuffleSoundPath!)
+            shuffleSoundPlayer = try AVAudioPlayer(contentsOf: shuffleSoundUrl)
+        } catch {
+            
+        }
+        
+        do {
+            let cardFlipSoundPath = Bundle.main.path(forResource: "cardflip", ofType: "wav")
+            let cardFlipSoundUrl = URL(fileURLWithPath: cardFlipSoundPath!)
+            cardFlipSoundPlayer = try AVAudioPlayer(contentsOf: cardFlipSoundUrl)
+        } catch {
+            
+        }
+        
+        do {
+            let correctSoundPath = Bundle.main.path(forResource: "dingcorrect", ofType: "wav")
+            let correctSoundUrl = URL(fileURLWithPath: correctSoundPath!)
+            correctSoundPlayer = try AVAudioPlayer(contentsOf: correctSoundUrl)
+        } catch {
+            
+        }
+        
+        do {
+            let wrongSoundPath = Bundle.main.path(forResource: "dingwrong", ofType: "wav")
+            let wrongSoundUrl = URL(fileURLWithPath: wrongSoundPath!)
+            wrongSoundPlayer = try AVAudioPlayer(contentsOf: wrongSoundUrl)
+        } catch {
+            
+        }
+        
+        //play the shuffle sound
+        shuffleSoundPlayer?.play()
         
         //call the getCards methods of the Card model
         cardArray = model.getCards()
@@ -50,13 +92,20 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
                     break
                 }
             }
-            
+            var popUpMessage = ""
             if userHasMatchedAllCards == true {
                 //game is won
+                popUpMessage = "Won"
             } else{
-                //game is lost
+                //game is lost, add action to an alert
+                popUpMessage = "Lost"
             }
+            let alert = UIAlertController(title: "Times Up!", message: popUpMessage, preferredStyle: .alert)
             
+            let alertAction = UIAlertAction(title: "Ok", style: .cancel, handler: nil)
+            
+            alert.addAction(alertAction)
+            present(alert, animated: true, completion: nil)
         }
         
         //update label
@@ -103,8 +152,9 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
         let card = cardArray[indexPath.row]
         
         if card.isFlipped == false && card.isMatched == false {
-            
+    
             //flip the card
+            cardFlipSoundPlayer?.play()
             cell.flip()
             
             //Set status of the card
@@ -138,20 +188,23 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
         //Compare the cards
         if cardOne.imageName == cardTwo.imageName {
             //It's a match. Set the statuses of the cards
+            
             cardOne.isMatched = true
             cardTwo.isMatched = true
         
             //remove the cards from the grid
+            correctSoundPlayer?.play()
             cardOneCell?.remove()
             cardTwoCell?.remove()
             
         } else {
-            
             //It's not a match. Set the status of the cards
+            
             cardOne.isFlipped = false
             cardTwo.isFlipped = false
             
             //Flip both cards
+            wrongSoundPlayer?.play()
             cardOneCell?.flipBack()
             cardTwoCell?.flipBack()
             
@@ -165,7 +218,6 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
         //Reset the property that tracks the first card flipped
         firstFlippedCardIndex = nil
         
-
     }
     
 }
