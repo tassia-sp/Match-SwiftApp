@@ -12,9 +12,13 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
 
     @IBOutlet weak var collectionView: UICollectionView!
     
+    @IBOutlet weak var countdownLabel: UILabel!
+    
     var model = CardModel()
     var cardArray = [Card]()
     var firstFlippedCardIndex:IndexPath?
+    var timer:Timer?
+    var countdown = 10
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -25,6 +29,38 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
         collectionView.delegate = self
         collectionView.dataSource = self
         
+        //set the countdown label
+        countdownLabel.text = String(countdown)
+        
+        //create and schedule timer
+        timer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(timerUpdate), userInfo: nil, repeats: true)
+    }
+    
+    @objc func timerUpdate() {
+        countdown -= 1
+        
+        if countdown == 0 {
+            //stop the match game, check if user has matched all cards
+            timer?.invalidate()
+            
+            var userHasMatchedAllCards = true
+            for card in cardArray {
+                if card.isMatched == false {
+                    userHasMatchedAllCards = false
+                    break
+                }
+            }
+            
+            if userHasMatchedAllCards == true {
+                //game is won
+            } else{
+                //game is lost
+            }
+            
+        }
+        
+        //update label
+        countdownLabel.text = String(countdown)
     }
 
     override func didReceiveMemoryWarning() {
@@ -55,10 +91,15 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         
+        //check if countdown is zero
+        if countdown == 0 {
+            return
+        }
+        
         //Get the cell the user selected
         let cell = collectionView.cellForItem(at: indexPath) as! CardCollectionViewCell
         
-        //Get the card theat the user selected
+        //Get the card that the user selected
         let card = cardArray[indexPath.row]
         
         if card.isFlipped == false && card.isMatched == false {
@@ -74,10 +115,8 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
                 //This is the first card being flipped
                 firstFlippedCardIndex = indexPath
             } else {
-                
-                // This is the second card being flipped. Perform mathcing logic
+                // This is the second card being flipped. Perform matching logic
                 checkForMatches(indexPath)
-                
             }
             
         }

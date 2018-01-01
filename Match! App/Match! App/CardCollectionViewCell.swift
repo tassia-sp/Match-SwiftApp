@@ -31,7 +31,7 @@ class CardCollectionViewCell: UICollectionViewCell {
         
         frontImageView.image = UIImage(named: card.imageName)
         
-        //Determine if the card is in a flipped state of flipped down state
+        //Determine if the card is in a flipped state or flipped down state
         if card.isFlipped == true {
             //Make sure the front image view is on top
             UIView.transition(from: backImageView, to: frontImageView, duration: 0.3, options: [.transitionFlipFromLeft, .showHideTransitionViews], completion: nil)
@@ -65,7 +65,7 @@ class CardCollectionViewCell: UICollectionViewCell {
         backImageView.alpha = 0
         frontImageView.alpha = 0
         
-        // animte it
+        // animate it
         UIView.animate(withDuration: 0.3, delay: 0.4, options: .curveEaseOut,
                        animations: {self.frontImageView.alpha = 0}, completion: nil)
         
