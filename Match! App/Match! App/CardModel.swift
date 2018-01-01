@@ -8,6 +8,7 @@
 
 import Foundation
 
+@objcMembers
 class CardModel: NSObject {
     
     func getCards() -> [Card] {

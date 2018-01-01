@@ -91,9 +91,9 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
                 //game is lost, add action to an alert
                 popUpMessage = "Lost"
             }
-            let alert = UIAlertController(title: "Times Up!", message: popUpMessage, preferredStyle: .alert)
+            let alert = UIAlertController(title: "Time's Up!", message: popUpMessage, preferredStyle: .alert)
             
-            let alertAction = UIAlertAction(title: "Ok", style: .cancel, handler: nil)
+            let alertAction = UIAlertAction(title: "Ok", style: .cancel, handler: { (alert) in self.restart()})
             
             alert.addAction(alertAction)
             present(alert, animated: true, completion: nil)
@@ -182,11 +182,12 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
             
             cardOne.isMatched = true
             cardTwo.isMatched = true
-            //Delay flip so user notices it
-                //remove the cards from the grid
-                self.correctSoundPlayer?.play()
-                cardOneCell?.remove()
-                cardTwoCell?.remove()
+            //remove the cards from the grid
+            self.correctSoundPlayer?.play()
+            cardOneCell?.remove()
+            cardTwoCell?.remove()
+            
+            checkPairs()
             
         } else {
             //It's not a match. Set the status of the cards
@@ -211,12 +212,41 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
         
     }
     
+    func checkPairs() {
+        //check if all the pairs have been matched
+        var allMatched = true
+        
+        for card in cardArray {
+            if !card.isMatched {
+                allMatched = false
+                break
+            }
+        }
+        
+        //check if all cards matched
+        if allMatched {
+                
+            //stop timer
+            timer?.invalidate()
+                
+            //user has won, show alert
+            let alert = UIAlertController(title: "All pairs matched!", message: "You win!", preferredStyle: .alert)
+                
+            let alertAction = UIAlertAction(title: "Ok", style: .cancel, handler: { (alert) in self.restart()})
+                
+            alert.addAction(alertAction)
+                
+            present(alert, animated: true, completion: nil)
+        }
+    }
+    
     func restart() {
         
         //clear out all cards
         for card in cardArray {
-            //card.removeFromSuperView()
+            card.removeFromSuperview()
         }
+        
         //play the shuffle sound
         shuffleSoundPlayer?.play()
         
@@ -224,6 +254,7 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
         cardArray = model.getCards()
         
         //set the countdown label
+        countdown = 60
         countdownLabel.text = String(countdown)
         
         //create and schedule timer
