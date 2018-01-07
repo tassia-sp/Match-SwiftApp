@@ -20,6 +20,7 @@
 		112740391FF9D6F400E12BDE /* dingcorrect.wav in Resources */ = {isa = PBXBuildFile; fileRef = 112740311FF9CD7E00E12BDE /* dingcorrect.wav */; };
 		1127403A1FF9D6F600E12BDE /* dingwrong.wav in Resources */ = {isa = PBXBuildFile; fileRef = 112740341FF9CD7F00E12BDE /* dingwrong.wav */; };
 		1127403B1FF9D6F900E12BDE /* shuffle.wav in Resources */ = {isa = PBXBuildFile; fileRef = 112740321FF9CD7F00E12BDE /* shuffle.wav */; };
+		1127404D2002A1CD00E12BDE /* SoundManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1127404C2002A1CD00E12BDE /* SoundManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -38,6 +39,7 @@
 		112740331FF9CD7F00E12BDE /* cardflip.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = cardflip.wav; sourceTree = "<group>"; };
 		112740341FF9CD7F00E12BDE /* dingwrong.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = dingwrong.wav; sourceTree = "<group>"; };
 		112740361FF9CDE200E12BDE /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+		1127404C2002A1CD00E12BDE /* SoundManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -82,6 +84,7 @@
 				111B9C641FF3496100F6E559 /* Assets.xcassets */,
 				111B9C661FF3496100F6E559 /* LaunchScreen.storyboard */,
 				111B9C691FF3496100F6E559 /* Info.plist */,
+				1127404C2002A1CD00E12BDE /* SoundManager.swift */,
 			);
 			path = "Match! App";
 			sourceTree = "<group>";
@@ -186,6 +189,7 @@
 				111B9C5E1FF3496100F6E559 /* AppDelegate.swift in Sources */,
 				111B9C701FF34EF300F6E559 /* CardModel.swift in Sources */,
 				111B9C721FF3507300F6E559 /* Card.swift in Sources */,
+				1127404D2002A1CD00E12BDE /* SoundManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

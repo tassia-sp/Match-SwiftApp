@@ -7,102 +7,40 @@
 //
 
 import UIKit
-import AVFoundation
 
 class ViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource {
 
     @IBOutlet weak var collectionView: UICollectionView!
     
-    @IBOutlet weak var countdownLabel: UILabel!
+    @IBOutlet weak var timerLabel: UILabel!
     
     var model = CardModel()
     var cardArray = [Card]()
     var firstFlippedCardIndex:IndexPath?
     var timer:Timer?
-    var countdown = 60
-    
-    var cardFlipSoundPlayer:AVAudioPlayer?
-    var correctSoundPlayer: AVAudioPlayer?
-    var wrongSoundPlayer:AVAudioPlayer?
-    var shuffleSoundPlayer:AVAudioPlayer?
+    var milliseconds:Float = 40 * 1000 //40 seconds
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        //create and initialize sounds players
-        do {
-            let shuffleSoundPath = Bundle.main.path(forResource: "shuffle", ofType: "wav")
-            let shuffleSoundUrl = URL(fileURLWithPath: shuffleSoundPath!)
-            shuffleSoundPlayer = try AVAudioPlayer(contentsOf: shuffleSoundUrl)
-        } catch {
-            
-        }
-        
-        do {
-            let cardFlipSoundPath = Bundle.main.path(forResource: "cardflip", ofType: "wav")
-            let cardFlipSoundUrl = URL(fileURLWithPath: cardFlipSoundPath!)
-            cardFlipSoundPlayer = try AVAudioPlayer(contentsOf: cardFlipSoundUrl)
-        } catch {
-            
-        }
-        
-        do {
-            let correctSoundPath = Bundle.main.path(forResource: "dingcorrect", ofType: "wav")
-            let correctSoundUrl = URL(fileURLWithPath: correctSoundPath!)
-            correctSoundPlayer = try AVAudioPlayer(contentsOf: correctSoundUrl)
-        } catch {
-            
-        }
-        
-        do {
-            let wrongSoundPath = Bundle.main.path(forResource: "dingwrong", ofType: "wav")
-            let wrongSoundUrl = URL(fileURLWithPath: wrongSoundPath!)
-            wrongSoundPlayer = try AVAudioPlayer(contentsOf: wrongSoundUrl)
-        } catch {
-            
-        }
-        
-        restart()
-        
+        //call the getCards methods of the Card model
+        cardArray = model.getCards()
+   
         collectionView.delegate = self
         collectionView.dataSource = self
 
+        //create timer
+        timer = Timer.scheduledTimer(timeInterval: 0.001, target: self, selector: #selector(timerElapsed), userInfo: nil, repeats: true)
+        RunLoop.main.add(timer!, forMode: .commonModes)
+        
     }
     
-    @objc func timerUpdate() {
-        countdown -= 1
+    override func viewDidAppear(_ animated: Bool) {
+     
+        SoundManager.playSound(.shuffle)
         
-        if countdown == 0 {
-            //stop the match game, check if user has matched all cards
-            timer?.invalidate()
-            
-            var userHasMatchedAllCards = true
-            for card in cardArray {
-                if card.isMatched == false {
-                    userHasMatchedAllCards = false
-                    break
-                }
-            }
-            var popUpMessage = ""
-            if userHasMatchedAllCards == true {
-                //game is won
-                popUpMessage = "Won"
-            } else{
-                //game is lost, add action to an alert
-                popUpMessage = "Lost"
-            }
-            let alert = UIAlertController(title: "Time's Up!", message: popUpMessage, preferredStyle: .alert)
-            
-            let alertAction = UIAlertAction(title: "Ok", style: .cancel, handler: { (alert) in self.restart()})
-            
-            alert.addAction(alertAction)
-            present(alert, animated: true, completion: nil)
-        }
-        
-        //update label
-        countdownLabel.text = String(countdown)
     }
-
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
@@ -131,8 +69,8 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         
-        //check if countdown is zero
-        if countdown == 0 {
+        //check if there is any time left
+        if milliseconds <= 0 {
             return
         }
         
@@ -144,20 +82,24 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
         
         if card.isFlipped == false && card.isMatched == false {
     
-            //flip the card
-            cardFlipSoundPlayer?.play()
             cell.flip()
+            
+            SoundManager.playSound(.flip)
             
             //Set status of the card
             card.isFlipped = true
             
             //Determine if it's the first card of second card that's flipped over
             if firstFlippedCardIndex == nil {
+                
                 //This is the first card being flipped
                 firstFlippedCardIndex = indexPath
+                
             } else {
+                
                 // This is the second card being flipped. Perform matching logic
                 checkForMatches(indexPath)
+                
             }
             
         }
@@ -180,17 +122,22 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
         if cardOne.imageName == cardTwo.imageName {
             //It's a match. Set the statuses of the cards
             
+            SoundManager.playSound(.match)
+            
+            //set statuses of the cards
             cardOne.isMatched = true
             cardTwo.isMatched = true
+            
             //remove the cards from the grid
-            self.correctSoundPlayer?.play()
             cardOneCell?.remove()
             cardTwoCell?.remove()
             
-            checkPairs()
+            checkGameEnded()
             
         } else {
-            //It's not a match. Set the status of the cards
+            //It's not a match
+            
+            SoundManager.playSound(.nomatch)
             
             cardOne.isFlipped = false
             cardTwo.isFlipped = false
@@ -198,7 +145,6 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
             //Flip both cards
             cardOneCell?.flipBack()
             cardTwoCell?.flipBack()
-            wrongSoundPlayer?.play()
             
         }
         
@@ -212,53 +158,73 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
         
     }
     
-    func checkPairs() {
+    @objc func timerElapsed() {
+        milliseconds -= 1
+        
+        //convert to seconds
+        let seconds = String(format: "%.2f", milliseconds/1000)
+        
+        //set label
+        timerLabel.text = "Time Remaining: \(seconds)"
+        
+        //stop when timer reaches 0
+        if milliseconds <= 0 {
+            timer?.invalidate()
+            timerLabel.textColor = UIColor.red
+            
+            //check if there are any cards unmatched
+            checkGameEnded()
+        }
+    }
+    
+    func checkGameEnded() {
+        
         //check if all the pairs have been matched
-        var allMatched = true
+        var isWon = true
+        var title = ""
+        var message = ""
         
         for card in cardArray {
+            
             if !card.isMatched {
-                allMatched = false
+                isWon = false
                 break
             }
         }
         
-        //check if all cards matched
-        if allMatched {
+        if isWon {
+            
+            if milliseconds > 0 {
+                timer?.invalidate()
+            }
+            
+                title = "Congratulations"
+                message = "You've won"
                 
-            //stop timer
-            timer?.invalidate()
+            } else {
+            
+                if milliseconds > 0 {
+                    return
+                }
                 
-            //user has won, show alert
-            let alert = UIAlertController(title: "All pairs matched!", message: "You win!", preferredStyle: .alert)
-                
-            let alertAction = UIAlertAction(title: "Ok", style: .cancel, handler: { (alert) in self.restart()})
-                
-            alert.addAction(alertAction)
-                
-            present(alert, animated: true, completion: nil)
-        }
+                title = "Game Over"
+                message = "You've lost"
+            }
+        
+        showAlert(title, message)
+        
     }
     
-    func restart() {
+    func showAlert(_ title:String, _ message:String) {
         
-        //clear out all cards
-        for card in cardArray {
-            card.removeFromSuperview()
-        }
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
         
-        //play the shuffle sound
-        shuffleSoundPlayer?.play()
+        let alertAction = UIAlertAction(title: "Ok", style: .cancel, handler: nil)
         
-        //call the getCards methods of the Card model
-        cardArray = model.getCards()
+        alert.addAction(alertAction)
         
-        //set the countdown label
-        countdown = 60
-        countdownLabel.text = String(countdown)
+        present(alert, animated: true, completion: nil)
         
-        //create and schedule timer
-        timer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(timerUpdate), userInfo: nil, repeats: true)
     }
     
 }
