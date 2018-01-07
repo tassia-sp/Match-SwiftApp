@@ -219,11 +219,26 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
         
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
         
-        let alertAction = UIAlertAction(title: "Ok", style: .cancel, handler: nil)
+        let alertAction = UIAlertAction(title: "Ok", style: .cancel, handler: {(alert) in self.restart()})
         
         alert.addAction(alertAction)
         
         present(alert, animated: true, completion: nil)
+        
+    }
+    
+    func restart() {
+        
+        cardArray = model.getCards()
+        
+        milliseconds = 40 * 1000
+        
+        timer = Timer.scheduledTimer(timeInterval: 0.001, target: self, selector: #selector(timerElapsed), userInfo: nil, repeats: true)
+        RunLoop.main.add(timer!, forMode: .commonModes)
+        
+        SoundManager.playSound(.shuffle)
+        
+        collectionView.reloadData()
         
     }
     
